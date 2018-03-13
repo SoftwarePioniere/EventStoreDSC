@@ -1,0 +1,8 @@
+[ClassVersion("1.0.0"), FriendlyName("EventStoreStartupTask")]
+class EventStoreStartupTask : OMI_BaseResource
+{
+    [Key, Description("Specifies Startup Task Name")] string TaskName;
+  
+    [Required, Description("Directory")] string Directory;
+    [Required, Description("Argument")] string Argument;
+};

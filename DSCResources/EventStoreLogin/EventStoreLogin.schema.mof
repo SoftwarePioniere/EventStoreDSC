@@ -1,0 +1,12 @@
+[ClassVersion("1.0.0"), FriendlyName("EventStoreLogin")]
+class EventStoreLogin : OMI_BaseResource
+{
+    [Key, Description("Specifies EventStore URL")] string Url;
+  
+    [Key, Description("User")] string User;
+    [write, Description("Password")] string Password;
+    [write, Description("NewPassword")] string NewPassword;
+
+    [write, Description("AdminUser")] string AdminUser;
+    [write, Description("AdminPassword")] string AdminPassword;
+};

@@ -5,14 +5,13 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)] [String] $TaskName,
-        [Parameter(Mandatory = $true)] [string] $Directory,
-        [Parameter(Mandatory = $true)] [string] $Argument
+        [Parameter(Mandatory = $true)] [string] $Directory
     )
 
     Write-Verbose 'Start Get-TargetResource'
     Write-Verbose "TaskName: $TaskName"
  
-    $exists=Test-EventStoreStartupTask -taskname $TaskName -arg $Argument
+    $exists=Test-EventStoreStartupTask -taskname $TaskName
 
     $returnValue = @{
         TaskName = $TaskName
@@ -28,14 +27,13 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)] [String] $TaskName,
-        [Parameter(Mandatory = $true)] [string] $Directory,
-        [Parameter(Mandatory = $true)] [string] $Argument
+        [Parameter(Mandatory = $true)] [string] $Directory
     )
 
     Write-Verbose 'Start Set-TargetResource'
     Write-Verbose "TaskName: $TaskName"
 
-    Set-EventStoreStartupTask -taskname $TaskName -arg $Argument -dir $Directory
+    Set-EventStoreStartupTask -taskname $TaskName -dir $Directory
 }
 
 function Test-TargetResource
@@ -45,11 +43,18 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)] [String] $TaskName,
-        [Parameter(Mandatory = $true)] [string] $Directory,
-        [Parameter(Mandatory = $true)] [string] $Argument
+        [Parameter(Mandatory = $true)] [string] $Directory
     )
 
-    return Test-EventStoreStartupTask -taskname $TaskName -arg $Argument
+    $ret = (Test-EventStoreStartupTask -taskname $TaskName)
+  
+    Write-Host "EventStoreStartupTask: $TaskName Exists: $ret"
+
+    if ($ret -eq "False") {
+        return $true;
+    }
+
+    return $false;
 }
 
 Export-ModuleMember -Function *-TargetResource

@@ -54,6 +54,8 @@ $pathInModuleDir = 'C:\Program Files\WindowsPowerShell\Modules\EventStoreDSC'
 
 New-Item -ItemType SymbolicLink -Path $pathInModuleDir -Target $originalPath
 
+Get-DscResource -Module EventStoreDSC
+
 ```
 
 ## Links

@@ -1,0 +1,8 @@
+[ClassVersion("1.0.0"), FriendlyName("EventStoreRunning")]
+class EventStoreRunning : OMI_BaseResource
+{
+    [Key, Description("Specifies EventStore URL")] string Url;
+  
+    [write, Description("Repeats")] string Repeats;
+    [write, Description("SecondsToWait")] string SecondsToWait;
+};

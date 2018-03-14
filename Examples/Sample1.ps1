@@ -7,9 +7,10 @@ Configuration Sample1
     {
         EventStoreProject EventStoreTestInstance
         {
-            DataDrive = "c:\"
+            RootDrive = "c:\"
             ExtIp = "127.0.0.1"
-            ESName = "test"
+            CertificatePassword = "xxx"        
+            ProjectName = "test"
             IntHttpPort = "2912"
             ExtHttpPort = "2913"
             IntTcpPort = "1912"
@@ -20,10 +21,10 @@ Configuration Sample1
             OldOpsPassword = "changeit"
             NewAdminPassword = "changedit"
             NewOpsPassword = "changedit"
-        }
+      }
     }
 }
 
 
-Sample1
-Start-DscConfiguration .\Sample1 -Wait -Force
+Sample1 -Verbose
+Start-DscConfiguration .\Sample1 -Wait -Force -Verbose

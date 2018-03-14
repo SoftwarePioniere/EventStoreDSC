@@ -33,7 +33,7 @@ function Set-TargetResource
     Write-Verbose 'Start Set-TargetResource'
     Write-Verbose "TaskName: $TaskName"
 
-    Set-EventStoreStartupTask -taskname $TaskName -dir $Directory
+    New-EventStoreStartupTask -taskname $TaskName -dir $Directory
 }
 
 function Test-TargetResource

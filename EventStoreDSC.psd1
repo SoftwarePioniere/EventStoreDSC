@@ -10,7 +10,7 @@
     FunctionsToExport = "*";
     CmdletsToExport   = "*";
     DscResourcesToExport =  @('EventStoreProject');
-    RequiredModules = @('FileDownloadDSC','EventStoreUtil')
+   # RequiredModules = @('FileDownloadDSC','EventStoreUtil')
     PrivateData = @{
         PSData = @{
             ProjectUri = 'https://github.com/SoftwarePioniere/EventStoreDSC'

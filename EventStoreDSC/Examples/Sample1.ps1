@@ -7,7 +7,7 @@ Configuration Sample1
     {
         EventStoreProject EventStoreTestInstance
         {
-            RootDrive = "c:\"
+            RootDrive = "c:"
             ExtIp = "127.0.0.1"
             #CertificatePassword = "xxx"
             CertificatePassword = "Password"

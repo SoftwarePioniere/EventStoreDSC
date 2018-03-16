@@ -5,7 +5,7 @@ configuration EventStoreProject
     (
         [string]    $RootDrive = 'f:',
         [string]    $RootDirectory = 'eventstore',
-        [string]    $BaseDirectoryName = $RootDrive + $RootDirectory,
+        [string]    $BaseDirectoryName = $RootDrive + '\' + $RootDirectory,
 
         [string]    $CertificateFile = 'softwarepioniere_dev.pfx',
         [string]    $CertificateDownloadUrl = 'https://softwarepioniere.blob.core.windows.net/devcert/' + $CertificateFile,

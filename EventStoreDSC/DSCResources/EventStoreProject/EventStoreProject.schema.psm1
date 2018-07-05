@@ -4,8 +4,8 @@ configuration EventStoreProject
     param
     (
         [string]    $RootDrive = 'f:',
-        [string]    $RootDirectory = 'eventstore',      
-        [string]    $BaseDirectoryName = $RootDrive + $RootDirectory,                         
+        [string]    $RootDirectory = 'eventstore',
+        [string]    $BaseDirectoryName = $RootDrive + $RootDirectory,
 
         [string]    $CertificateFile = 'softwarepioniere_dev.pfx',
         [string]    $CertificateDownloadUrl = 'https://softwarepioniere.blob.core.windows.net/devcert/' + $CertificateFile,
@@ -14,7 +14,7 @@ configuration EventStoreProject
 
         [string]    $ZipName401= 'EventStore-OSS-Win-v4.0.1',
         [string]    $ArchiveFile401 = $BaseDirectoryName + '\' + $ZipName401 + '.zip',
-        
+
         [string]    $ZipName401Hotfix4= 'EventStore-OSS-Win-v4.0.1-hotfix4',
         [string]    $ArchiveFile401Hotfix4 = $BaseDirectoryName + '\' + $ZipName401Hotfix4 + '.zip',
 
@@ -23,7 +23,10 @@ configuration EventStoreProject
 
         [string]    $ZipName410= 'EventStore-OSS-Win-v4.1.0',
         [string]    $ArchiveFile410 = $BaseDirectoryName + '\' + $ZipName410 + '.zip' ,
-        
+
+        [string]    $ZipName411Hotfix1= 'EventStore-OSS-Win-v4.1.1-hotfix1',
+        [string]    $ArchiveFile411Hotfix1 = $BaseDirectoryName + '\' + $ZipName411Hotfix1 + '.zip',
+
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
 
@@ -34,41 +37,44 @@ configuration EventStoreProject
         [string]    $ExtTcpPort = '1213',
         [string]    $IntSecureTcpPort = '3212',
         [string]    $ExtSecureTcpPort = '3213',
- 
+
         [string]    $OldAdminPassword = 'changeit',
         [string]    $OldOpsPassword = 'changeit',
         [string]    $NewAdminPassword = 'changedit',
         [string]    $NewOpsPassword = 'changedit',
-      
+
         [string]    $AppDirectory401 = $ProjectDirectoryName + '\' + $ZipName401 ,
         [string]    $AppExe401 = $AppDirectory401 + '\EventStore.ClusterNode.exe',
-      
+
         [string]    $AppDirectory401Hotfix4 = $ProjectDirectoryName + '\' + $ZipName401Hotfix4,
         [string]    $AppExe401Hotfix4 = $AppDirectory401Hotfix4 + '\EventStore.ClusterNode.exe',
-      
+
         [string]    $AppDirectory403 = $ProjectDirectoryName + '\' + $ZipName403,
         [string]    $AppExe403 = $AppDirectory403 + '\EventStore.ClusterNode.exe',
-     
+
         [string]    $AppDirectory410 = $ProjectDirectoryName + '\' + $ZipName410,
         [string]    $AppExe410 = $AppDirectory410 + '\EventStore.ClusterNode.exe',
-            
+
+        [string]    $AppDirectory411Hotfix1 = $ProjectDirectoryName + '\' + $ZipName411Hotfix1,
+        [string]    $AppExe411Hotfix1 = $AppDirectory411Hotfix1 + '\EventStore.ClusterNode.exe',
+
         [string]    $ConfigFile =  $ProjectDirectoryName + '\config.yaml',
         [string]    $StarterFile = $ProjectDirectoryName + '\start.cmd',
         [string]    $AdminUrl = 'http://'+  $ExtIp  +  ':' + $ExtHttpPort
-    
+
     )
 
-    Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.0.0.0'}
-    Import-DSCResource -ModuleName @{ModuleName='FileDownloadDSC';ModuleVersion='1.0.5'}
+    Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
+    Import-DSCResource -ModuleName @{ModuleName='FileDownloadDSC';ModuleVersion='1.0.9'}
     Import-DSCResource -ModuleName EventStoreDSC
-    
+
     File BaseDirectory
     {
         Ensure          = 'Present'
         Type            = 'Directory'
         DestinationPath = $BaseDirectoryName
-    }  
-    
+    }
+
     FileDownload DownloadCertificate
     {
         DependsOn = '[File]BaseDirectory'
@@ -104,6 +110,12 @@ configuration EventStoreProject
             Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.0.zip'
     }
 
+    FileDownload DownloadEventStoreV411Hotfix1
+    {
+            DependsOn = '[FileDownload]DownloadCertificate'
+            FileName = $ArchiveFile411Hotfix1
+            Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip'
+    }
 
     # =========================== EventStore Firewall ======================================================
     xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreInternal' )
@@ -175,6 +187,14 @@ configuration EventStoreProject
         Destination = $AppDirectory410
     }
 
+    Archive ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1')
+    {
+        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV411Hotfix1'
+        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+        Path        = $ArchiveFile411Hotfix1
+        Destination = $AppDirectory411Hotfix1
+    }
+
     File ( 'ES_'+ $ProjectName + '_ConfigFile')
     {
         DependsOn       = '[File]ES_' + $ProjectName + '_Directory'
@@ -241,23 +261,31 @@ START ' + $AppExe410 + ' --config=' + $ConfigFile
         Arguments   = '--config=' + $ConfigFile
         Path        = $AppExe410
         DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
+        Ensure      = 'Absent'
+    }
+
+    WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process')
+    {
+        Arguments   = '--config=' + $ConfigFile
+        Path        = $AppExe411Hotfix1
+        DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
         Ensure      = 'Present'
     }
 
-    EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask') 
+    EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
     {
         DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV410Process'
         TaskName    = 'EventStore Startup' + $ProjectName
         Directory   = $ProjectDirectoryName
     }
 
-    EventStoreRunning('ES_' + $ProjectName + '_EventStoreRunning') 
+    EventStoreRunning('ES_' + $ProjectName + '_EventStoreRunning')
     {
-        DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV410Process'
+        DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
         Url         = $AdminUrl
     }
-   
-    EventStoreLogin('ES_' + $ProjectName + '_Login_Admin') 
+
+    EventStoreLogin('ES_' + $ProjectName + '_Login_Admin')
     {
         DependsOn       = '[EventStoreRunning]' + 'ES_' + $ProjectName + '_EventStoreRunning'
         Url             = $AdminUrl
@@ -265,10 +293,10 @@ START ' + $AppExe410 + ' --config=' + $ConfigFile
         Password        = $OldAdminPassword
         NewPassword     = $NewAdminPassword
         AdminUser       = 'admin'
-        AdminPassword   = $OldAdminPassword        
+        AdminPassword   = $OldAdminPassword
     }
 
-    EventStoreLogin('ES_' + $ProjectName + '_Login_Ops') 
+    EventStoreLogin('ES_' + $ProjectName + '_Login_Ops')
     {
         DependsOn       = '[EventStoreLogin]' + 'ES_' + $ProjectName + '_Login_Admin'
         Url             = $AdminUrl
@@ -276,7 +304,7 @@ START ' + $AppExe410 + ' --config=' + $ConfigFile
         Password        = $OldOpsPassword
         NewPassword     = $NewOpsPassword
         AdminUser       = 'admin'
-        AdminPassword   = $NewAdminPassword        
-    }     
-        
+        AdminPassword   = $NewAdminPassword
+    }
+
 }

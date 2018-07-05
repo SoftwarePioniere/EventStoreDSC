@@ -9,14 +9,14 @@ Configuration Sample1
         {
             RootDrive = "c:\"
             ExtIp = "127.0.0.1"
-            CertificatePassword = "xxx"        
+            CertificatePassword = "Password"
             ProjectName = "test"
-            IntHttpPort = "2912"
-            ExtHttpPort = "2913"
-            IntTcpPort = "1912"
-            ExtTcpPort = "1913"
-            IntSecureTcpPort = "3912"
-            ExtSecureTcpPort = "3913"
+            IntHttpPort = "2812"
+            ExtHttpPort = "2813"
+            IntTcpPort = "1812"
+            ExtTcpPort = "1813"
+            IntSecureTcpPort = "3812"
+            ExtSecureTcpPort = "3813"
             OldAdminPassword = "changeit"
             OldOpsPassword = "changeit"
             NewAdminPassword = "changedit"
@@ -27,4 +27,4 @@ Configuration Sample1
 
 
 Sample1 -Verbose
-Start-DscConfiguration .\Sample1 -Wait -Force -Verbose
+Start-DscConfiguration .\Sample1 -Wait -Force -Verbose -Debug

@@ -44,15 +44,29 @@ $env:PSModulePath -split ';'
 #adding local folder to PSModulePath
 $env:PSModulePath = $env:PSModulePath + ";$(Get-Location)"
 
-Publish-Module -Name EventStoreDSC -NuGetApiKey $env:PS_GALLERY_API_KEY 
+Publish-Module -Name EventStoreDSC -NuGetApiKey $env:PS_GALLERY_API_KEY
+
+
+
+
 
 
 #Link folder to Powershell Modules Directory
 
 $originalPath =  "$(Get-Location)"
-$pathInModuleDir = 'C:\Program Files\WindowsPowerShell\Modules\EventStoreDSC'
+$originalPath =  "C:\Repos\EventStoreDSC\EventStoreDSC"
 
-New-Item -ItemType SymbolicLink -Path $pathInModuleDir -Target $originalPath
+$moduleDir = 'C:\Program Files\WindowsPowerShell\Modules\EventStoreDSC'
+if (!(Test-Path -Path $moduleDir) {
+   New-Item -Path $moduleDir -ItemType Directory
+}
+
+$versionDir = $moduleDir + '\9.9.9'
+if (Test-Path -Path $versionDir) {
+    Remove-item -Path $versionDir -Force -Recurse
+}
+
+New-Item -ItemType SymbolicLink -Path $moduleDir -Target $originalPath -Name 9.9.9
 
 Get-DscResource -Module EventStoreDSC
 

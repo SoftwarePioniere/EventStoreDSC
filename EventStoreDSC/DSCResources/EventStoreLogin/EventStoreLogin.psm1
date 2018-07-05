@@ -14,9 +14,9 @@ function Get-TargetResource
 
     Write-Verbose 'Start Get-TargetResource'
     Write-Verbose "Url: $Url"
- 
+
      $returnValue = @{
-        Url = $Url        
+        Url = $Url
     }
 
     $returnValue
@@ -35,7 +35,14 @@ function Set-TargetResource
         [Parameter()] [String] $AdminPassword
     )
 
-        Set-EventStoreUserPassword -url $Url -user $User -newpassword $NewPassword -adminuser $AdminUser -adminpassword $AdminPassword
+    $userpwd = ConvertTo-SecureString $NewPassword -AsPlainText -Force
+    $usercred = New-Object System.Management.Automation.PSCredential($User, $userpwd)
+
+    $adminpwd = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
+    $admincred = New-Object System.Management.Automation.PSCredential($AdminUser, $adminpwd)
+
+    Set-EventStoreUserPassword -url $Url -user $usercred -credential $admincred
+    # Set-EventStoreUserPassword -url $Url -user $User -newpassword $NewPassword -adminuser $AdminUser -adminpassword $AdminPassword
 }
 
 function Test-TargetResource
@@ -52,8 +59,12 @@ function Test-TargetResource
         [Parameter()] [String] $AdminPassword
     )
 
-    $ret = (Test-EventStoreUserHasPassword -url $Url -user $User -password $NewPassword)
-  
+    $pwd = ConvertTo-SecureString $NewPassword -AsPlainText -Force
+    $cred = New-Object System.Management.Automation.PSCredential($User, $pwd)
+    $ret = (Test-EventStoreUserHasPassword -url $Url -credential $cred)
+
+    # $ret = (Test-EventStoreUserHasPassword -url $Url -user $User -password $NewPassword)
+
     Write-Host "EventStoreUserHasPassword $url $ret"
 
     if ($ret -eq "False") {

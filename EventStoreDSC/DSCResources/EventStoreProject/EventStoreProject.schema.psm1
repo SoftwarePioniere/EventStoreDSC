@@ -5,7 +5,7 @@ configuration EventStoreProject
     (
         [string]    $RootDrive = 'f:',
         [string]    $RootDirectory = 'eventstore',
-        [string]    $BaseDirectoryName = $RootDrive + $RootDirectory,
+        [string]    $BaseDirectoryName = $RootDrive + '\' + $RootDirectory,
 
         [string]    $CertificateFile = 'softwarepioniere_dev.pfx',
         [string]    $CertificateDownloadUrl = 'https://softwarepioniere.blob.core.windows.net/devcert/' + $CertificateFile,
@@ -274,8 +274,8 @@ START ' + $AppExe410 + ' --config=' + $ConfigFile
 
     EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
     {
-        DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV410Process'
-        TaskName    = 'EventStore Startup' + $ProjectName
+        DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+        TaskName    = 'EventStore Startup - ' + $ProjectName
         Directory   = $ProjectDirectoryName
     }
 

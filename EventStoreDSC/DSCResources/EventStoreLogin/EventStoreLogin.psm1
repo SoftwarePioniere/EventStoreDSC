@@ -9,15 +9,16 @@ function Test-EventStoreUserHasPassword{
 
     Write-Verbose ":: Check if User: $user Has Password on URL:$url"
 
-  #  $credential = New-Object System.Management.Automation.PSCredential($user, $password)
-    # $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $user,$password)))
+    $unsecureCreds = $credential.GetNetworkCredential()
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $unsecureCreds.UserName,$unsecureCreds.Password)))
+    Remove-Variable unsecureCreds
 
     $url = $url + '/users/' + $user
     Write-Verbose ":: Rest URL: $url"
 
     try {
         Write-Verbose ":: Try Invoke with Credentials $url"
-        $response = Invoke-RestMethod  $url -Credential $credential -Method Get
+        $response = Invoke-RestMethod  $url -Credential $credential -Method Get -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}
         Write-Verbose ":: Response StatusCode: $response.StatusCode"
         Write-Verbose ":: Response: $response"
         Write-Verbose ":: Benutzer $user kann sich mit dem Kennwort anmelden"
@@ -57,9 +58,13 @@ function Set-EventStoreUserPassword{
 
     $JSON = '{"newPassword":"' + $user.GetNetworkCredential().Password + '"}'
 
+    $unsecureCreds = $credential.GetNetworkCredential()
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $unsecureCreds.UserName,$unsecureCreds.Password)))
+    Remove-Variable unsecureCreds
+
     Write-Verbose ":: JSON: $JSON"
     Write-Verbose ":: Invoking RestMethod"
-    Invoke-RestMethod $url -Credential $credential -Method Post -Body $JSON -ContentType "application/json"
+    Invoke-RestMethod $url -Credential $credential -Method Post -Body $JSON -ContentType "application/json" -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}
 
     Write-Verbose ":: Waiting 2 seconds"
     Start-Sleep -s 2
@@ -109,20 +114,7 @@ function Set-TargetResource
         $adminSecPassword = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
         $adminCredential = New-Object System.Management.Automation.PSCredential($AdminUser, $adminSecPassword)
 
-<<<<<<< HEAD
-    $userpwd = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-    $usercred = New-Object System.Management.Automation.PSCredential($User, $userpwd)
-
-    $adminpwd = ConvertTo-SecureString $AdminPassword -AsPlainText -Force
-    $admincred = New-Object System.Management.Automation.PSCredential($AdminUser, $adminpwd)
-
-    Set-EventStoreUserPassword -url $Url -user $usercred -credential $admincred
-    # Set-EventStoreUserPassword -url $Url -user $User -newpassword $NewPassword -adminuser $AdminUser -adminpassword $AdminPassword
-=======
         Set-EventStoreUserPassword -credential $adminCredential -user $userCredential
-
-     #   Set-EventStoreUserPassword -url $Url -user $User -newpassword $NewPassword -adminuser $AdminUser -adminpassword $AdminPassword
->>>>>>> e9421b2e35ca352cf8f3fc5a2177e059e3ad8ab5
 }
 
 function Test-TargetResource
@@ -139,18 +131,10 @@ function Test-TargetResource
         [Parameter()] [String] $AdminPassword
     )
 
-<<<<<<< HEAD
-    $pwd = ConvertTo-SecureString $NewPassword -AsPlainText -Force
-    $cred = New-Object System.Management.Automation.PSCredential($User, $pwd)
-    $ret = (Test-EventStoreUserHasPassword -url $Url -credential $cred)
-
-    # $ret = (Test-EventStoreUserHasPassword -url $Url -user $User -password $NewPassword)
-=======
     $userSecPassword = ConvertTo-SecureString $Password -AsPlainText -Force
     $userCredential = New-Object System.Management.Automation.PSCredential($User, $userSecPassword)
 
     $ret = (Test-EventStoreUserHasPassword -url $Url -credential $userCredential)
->>>>>>> e9421b2e35ca352cf8f3fc5a2177e059e3ad8ab5
 
     Write-Host "EventStoreUserHasPassword $url $ret"
 

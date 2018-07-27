@@ -1,63 +1,15 @@
-# FileDownloadDsc
-
-File Downloader for PowerShellDSC
-
-Usage
-```
-Configuration Sample1
-{
-    Import-DSCResource -ModuleName PSDesiredStateConfiguration
-    Import-DSCResource -ModuleName EventStoreDSC
-
-    Node localhost
-    {
-        EventStoreProject EventStoreTestInstance
-        {
-            DataDrive = "c:\"
-            ExtIp = "127.0.0.1"
-            ESName = "test"
-            IntHttpPort = "2912"
-            ExtHttpPort = "2913"
-            IntTcpPort = "1912"
-            ExtTcpPort = "1913"
-            IntSecureTcpPort = "3912"
-            ExtSecureTcpPort = "3913"
-            OldAdminPassword = "changeit"
-            OldOpsPassword = "changeit"
-            NewAdminPassword = "changedit"
-            NewOpsPassword = "changedit"
-        }
-    }
-}
-
-```
+# EventStoreDSC
 
 ## Development
 
-```
-#adding Gallery API Key to Environment
-$env:PS_GALLERY_API_KEY = "XXX"
-
-#list module path
-$env:PSModulePath -split ';'
-
-#adding local folder to PSModulePath
-$env:PSModulePath = $env:PSModulePath + ";$(Get-Location)"
-
-Publish-Module -Name EventStoreDSC -NuGetApiKey $env:PS_GALLERY_API_KEY
-
-
-
-
-
-
+```powershell
 #Link folder to Powershell Modules Directory
 
-$originalPath =  "$(Get-Location)"
 $originalPath =  "C:\Repos\EventStoreDSC\EventStoreDSC"
+$originalPath =  "$(Get-Location)"
 
 $moduleDir = 'C:\Program Files\WindowsPowerShell\Modules\EventStoreDSC'
-if (!(Test-Path -Path $moduleDir) {
+if (!(Test-Path -Path $moduleDir)) {
    New-Item -Path $moduleDir -ItemType Directory
 }
 
@@ -68,11 +20,42 @@ if (Test-Path -Path $versionDir) {
 
 New-Item -ItemType SymbolicLink -Path $moduleDir -Target $originalPath -Name 9.9.9
 
+```
+
+
+```powershell
+#Start Local Shell
+# powershell
+# .\Prepare-Env.ps1
+
 Get-DscResource -Module EventStoreDSC
+
+#Analyze Module
+Invoke-ScriptAnalyzer -Path .\EventStoreDSC\
+Test-xDscResource .\EventStoreDSC\DSCResources\WaitForEventStore
+Test-xDscSchema .\EventStoreDSC\DSCResources\WaitForEventStore\WaitForEventStore.schema.mof
+
+Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreLogin
+Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreLogin\EventStoreLogin.schema.mof
+
+Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreStartupTask
+Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreStartupTask\EventStoreStartupTask.schema.mof
+
+Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreSingleNode
+Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreSingleNode\EventStoreStartupTask.schema.psm1
+Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreSingleNode\EventStoreStartupTask.schema.psm1
+
+$error = $null
+Import-Module EventStoreDSC –force
+If ($error.count –ne 0) {
+    Throw “Module was not imported correctly. Errors returned: $error”
+}
 
 ```
 
+
 ## Links
 
-https://hodgkins.io/five-tips-for-writing-dsc-resources-in-powershell-version-5
-https://kevinmarquette.github.io/2017-05-27-Powershell-module-building-basics/?utm_source=blog&utm_medium=blog&utm_content=psrepository
+* https://hodgkins.io/five-tips-for-writing-dsc-resources-in-powershell-version-5
+* https://kevinmarquette.github.io/2017-05-27-Powershell-module-building-basics/?utm_source=blog&utm_medium=blog&utm_content=psrepository
+* https://docs.microsoft.com/de-de/powershell/dsc/separatingenvdata

@@ -1,3 +1,5 @@
+$password = ConvertTo-SecureString "Password" -AsPlainText -Force
+
 Configuration Sample1
 {
     Import-DSCResource -ModuleName PSDesiredStateConfiguration
@@ -5,22 +7,19 @@ Configuration Sample1
 
     Node localhost
     {
-        EventStoreProject EventStoreTestInstance
+        EventStoreNode esnode
         {
             RootDrive = "c:"
             ExtIp = "127.0.0.1"
-            CertificatePassword = "Password"
-            ProjectName = "test"
+            UseSecure = $true
+            CertificatePassword = $password
+            ProjectName = "test1"
             IntHttpPort = "2812"
             ExtHttpPort = "2813"
             IntTcpPort = "1812"
             ExtTcpPort = "1813"
-            IntSecureTcpPort = "3812"
             ExtSecureTcpPort = "3813"
-            OldAdminPassword = "changeit"
-            OldOpsPassword = "changeit"
-            NewAdminPassword = "changedit"
-            NewOpsPassword = "changedit"
+
       }
     }
 }
@@ -28,3 +27,5 @@ Configuration Sample1
 
 Sample1 -Verbose
 Start-DscConfiguration .\Sample1 -Wait -Force -Verbose -Debug
+
+Start-Process 'http://localhost:2813'

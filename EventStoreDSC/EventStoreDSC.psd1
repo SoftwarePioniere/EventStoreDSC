@@ -1,5 +1,5 @@
 @{
-    ModuleVersion     = "0.0.4.2";
+    ModuleVersion     = "9.9.9";
     GUID              = "21be7e07-c245-4f2e-b1c5-721f9bccfa5e";
     Author            = "Tobias Boeker";
     CompanyName       = "Softwarepioniere GmbH & Co. KG";
@@ -7,9 +7,10 @@
     Description       = "EventStoreDSC";
     PowerShellVersion = "4.0";
     CLRVersion        = "4.0";
-    FunctionsToExport = "*";
-    CmdletsToExport   = "*";
-    DscResourcesToExport =  @('EventStoreProject');
+    FunctionsToExport = '*'
+    CmdletsToExport   = '*'
+    DscResourcesToExport   = '*'
+    # DscResourcesToExport =  @('EventStoreProject');
     # RequiredModules = @(@{ModuleName = 'FileDownloadDSC'; ModuleVersion = '1.0.9'; },
     #                     @{ModuleName = 'EventStoreUtil'; ModuleVersion = '0.0.6'; })
     PrivateData = @{

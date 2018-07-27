@@ -1,38 +1,8 @@
-function Test-EventStoreRunning {
+$modulePath = Join-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -ChildPath 'Modules'
 
-    [OutputType('System.Boolean')]
-    [cmdletbinding()]
-    Param(
-        [String]    $url = "http://localhost:2113" ,
-        [Int]       $repeats = 3,
-        [Int]       $secondsToWait = 1
-    )
-
-    Write-Information ":: Testing EventStore on URL: $url"
-
-    $i = 1;
-    while ($i -ne $repeats) {
-        Write-Verbose -Message (":: Attemp: $i")
-        try {
-            Write-Verbose -Message (":: Try to Invoke Invoke-RestMethod: $url")
-            $response = Invoke-RestMethod  $url -Method Get
-            Write-Verbose -Message (":: Response: $response")
-
-            return $true
-        }
-        catch {
-
-            Write-Verbose -Message (":: $_")
-            #return $false
-            Write-Verbose -Message (":: Waiting $secondsToWait seconds")
-            Start-Sleep -s $secondsToWait
-        }
-
-        $i = $i + 1;
-    }
-
-    return $false
-}
+Import-Module -Name (Join-Path -Path $modulePath `
+        -ChildPath (Join-Path -Path 'EventStoreUtil' `
+            -ChildPath 'EventStoreUtil.psm1'))
 
 
 function Get-TargetResource
@@ -49,7 +19,7 @@ function Get-TargetResource
     Write-Verbose 'Start Get-TargetResource'
     Write-Verbose "Url: $Url"
 
-     $returnValue = @{
+    $returnValue = @{
         Url = $Url
     }
 
@@ -58,7 +28,7 @@ function Get-TargetResource
 
 function Set-TargetResource
 {
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)] [String] $Url,

@@ -34,7 +34,8 @@ configuration EventStoreNode
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
 
-        [string]    $ExtIp = '10.0.0.4',
+        [string]    $ExtIp = '127.0.0.1',
+        [string]    $IntIp = '127.0.0.1',
         [string]    $IntHttpPort = '2212',
         [string]    $ExtHttpPort = '2213',
         [string]    $IntTcpPort = '1212',
@@ -241,6 +242,7 @@ DiscoverViaDns: false
 ClusterSize: ' + $ClusterSize + '
 GossipSeed: ' + $GossipSeed + '
 ExtIp: ' + $ExtIp + '
+IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '
@@ -266,6 +268,7 @@ Db: ' + $ProjectDirectoryName + '\data
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 ExtIp: ' + $ExtIp + '
+IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '
@@ -295,6 +298,7 @@ DiscoverViaDns: false
 ClusterSize: ' + $ClusterSize + '
 GossipSeed: ' + $GossipSeed + '
 ExtIp: ' + $ExtIp + '
+IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '
@@ -316,6 +320,7 @@ Db: ' + $ProjectDirectoryName + '\data
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 ExtIp: ' + $ExtIp + '
+IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '

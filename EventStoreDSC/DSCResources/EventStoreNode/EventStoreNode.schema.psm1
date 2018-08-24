@@ -8,6 +8,7 @@ configuration EventStoreNode
         [string]    $BaseDirectoryName = $RootDrive + '\' + $RootDirectory,
 
         [boolean]   $UseSecure = $false,
+        [boolean]   $UseFirewall = $false,
         [boolean]   $CheckRunning = $true,
         [boolean]   $IsClusterNode = $false,
 
@@ -127,48 +128,51 @@ configuration EventStoreNode
             Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip'
     }
 
-    # =========================== EventStore Firewall ======================================================
-    xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreInternal' )
-    {
-        Name                  = 'EventStore Allow_EventStore_Int_In_' + $ProjectName
-        DisplayName           = 'EventStore Allow inbound Internal Event Store traffic ' + $ProjectName
-        Group                 = 'EventStore Firewall Rule Group'
-        Ensure                = 'Present'
-        Enabled               = 'True'
-        Profile               = ('Domain', 'Private', 'Public')
-        Direction             = 'Inbound'
-        LocalPort             = ( $IntTcpPort , $IntHttpPort )
-        Protocol              = 'TCP'
-    }
+    if ($UseFirewall) {
 
-    if ($UseSecure) {
-
-        xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreExternal' )
+        # =========================== EventStore Firewall ======================================================
+        xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreInternal' )
         {
-            Name                  = 'EventStore Allow_EventStore_Ext_In_' + $ProjectName
-            DisplayName           = 'EventStore Allow inbound External Event Store traffic ' + $ProjectName
+            Name                  = 'EventStore Allow_EventStore_Int_In_' + $ProjectName
+            DisplayName           = 'EventStore Allow inbound Internal Event Store traffic ' + $ProjectName
             Group                 = 'EventStore Firewall Rule Group'
             Ensure                = 'Present'
             Enabled               = 'True'
             Profile               = ('Domain', 'Private', 'Public')
             Direction             = 'Inbound'
-            LocalPort             = ($ExtTcpPort, $ExtHttpPort, $ExtSecureTcpPort )
+            LocalPort             = ( $IntTcpPort , $IntHttpPort )
             Protocol              = 'TCP'
         }
 
-    }else{
+        if ($UseSecure) {
 
-        xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreExternal' )
-        {
-            Name                  = 'EventStore Allow_EventStore_Ext_In_' + $ProjectName
-            DisplayName           = 'EventStore Allow inbound External Event Store traffic ' + $ProjectName
-            Group                 = 'EventStore Firewall Rule Group'
-            Ensure                = 'Present'
-            Enabled               = 'True'
-            Profile               = ('Domain', 'Private', 'Public')
-            Direction             = 'Inbound'
-            LocalPort             = ($ExtTcpPort, $ExtHttpPort )
-            Protocol              = 'TCP'
+            xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreExternal' )
+            {
+                Name                  = 'EventStore Allow_EventStore_Ext_In_' + $ProjectName
+                DisplayName           = 'EventStore Allow inbound External Event Store traffic ' + $ProjectName
+                Group                 = 'EventStore Firewall Rule Group'
+                Ensure                = 'Present'
+                Enabled               = 'True'
+                Profile               = ('Domain', 'Private', 'Public')
+                Direction             = 'Inbound'
+                LocalPort             = ($ExtTcpPort, $ExtHttpPort, $ExtSecureTcpPort )
+                Protocol              = 'TCP'
+            }
+
+        }else{
+
+            xFirewall ( 'ES_' + $ProjectName + '_FirewallEventStoreExternal' )
+            {
+                Name                  = 'EventStore Allow_EventStore_Ext_In_' + $ProjectName
+                DisplayName           = 'EventStore Allow inbound External Event Store traffic ' + $ProjectName
+                Group                 = 'EventStore Firewall Rule Group'
+                Ensure                = 'Present'
+                Enabled               = 'True'
+                Profile               = ('Domain', 'Private', 'Public')
+                Direction             = 'Inbound'
+                LocalPort             = ($ExtTcpPort, $ExtHttpPort )
+                Protocol              = 'TCP'
+            }
         }
     }
 

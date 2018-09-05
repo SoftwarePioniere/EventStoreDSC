@@ -9,6 +9,7 @@ configuration EventStoreNode
 
         [boolean]   $UseSecure = $false,
         [boolean]   $UseFirewall = $false,
+        [boolean]   $UseStartupTask = $true,
         [boolean]   $CheckRunning = $true,
         [boolean]   $IsClusterNode = $false,
 
@@ -388,11 +389,13 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
         Ensure      = 'Present'
     }
 
-    EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
-    {
-        DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
-        TaskName    = 'EventStore Startup - ' + $ProjectName
-        Directory   = $ProjectDirectoryName
+    if ($UseStartupTask) {
+        EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
+        {
+            DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+            TaskName    = 'EventStore Startup - ' + $ProjectName
+            Directory   = $ProjectDirectoryName
+        }
     }
 
     if ($CheckRunning) {

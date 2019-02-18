@@ -65,16 +65,31 @@ function Test-TargetResource
 
     $ret = $false;
 
-    if (Get-Service -Name $ServiceName -ErrorAction SilentlyContinue -ErrorVariable WindowsServiceExistsError)
-    {
-        Write-Verbose "$ServiceName Exists"
-        $ret = $true;
+    $a = Get-Service | Where-Object { $_.Name -eq $ServiceName }
+
+    if ($a) {
+        Write-Verbose "$ServiceName found"
+        $ret = $true
+    }
+    else  {
+        Write-Verbose "$ServiceName not found"
     }
 
-    if ($WindowsServiceExistsError)
-    {
-        Write-Verbose $WindowsServiceExistsError[0].exception.message
-    }
+    # try{
+
+    #     if (Get-Service -Name $ServiceName)
+    #     {
+    #         Write-Verbose "$ServiceName Exists"
+    #         $ret = $true;
+    #     }
+
+    # }
+    # catch{
+    #     Write-Warning $_.exception.message
+    # }
+    # finally{
+    # }
+
 
     if ($ret -eq "False") {
         return $true;

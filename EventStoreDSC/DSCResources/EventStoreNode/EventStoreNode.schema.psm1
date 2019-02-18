@@ -82,8 +82,8 @@ configuration EventStoreNode
         [string]    $StarterFile = $ProjectDirectoryName + '\start.cmd',
         [string]    $AdminUrl = 'http://'+  $ExtIp  +  ':' + $ExtHttpPort,
 
-        [string]    $CurrentAppExe = $AppExe411Hotfix1,
-        [string]    $CurrentServiceName = $ServiceName411Hotfix1
+        [string]    $CurrentAppExe = $AppExe500,
+        [string]    $CurrentServiceName = $ServiceName500
     )
 
     Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
@@ -438,21 +438,29 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
         Service ('ES_' + $ProjectName + '_Service411Hotfix1')
         {
             Name        = $ServiceName411Hotfix1
+            StartupType = 'Disabled'
+            State       = 'Stopped'
+        }
+
+        Service ('ES_' + $ProjectName + '_Service500')
+        {
+            Name        = $ServiceName500
             StartupType = 'Automatic'
             State       = 'Running'
         }
 
-        # Service ('ES_' + $ProjectName + '_Service500')
-        # {
-        #     Name        = $ServiceName500
-        #     StartupType = 'Automatic'
-        #     State       = 'Running'
+        # if ($CheckRunning) {
+        #     WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning1')
+        #     {
+        #         DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service411Hotfix1'
+        #         Url         = $AdminUrl
+        #     }
         # }
 
         if ($CheckRunning) {
             WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning1')
             {
-                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service411Hotfix1'
+                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service500'
                 Url         = $AdminUrl
             }
         }

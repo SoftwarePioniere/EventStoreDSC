@@ -89,7 +89,7 @@ configuration EventStoreNode
     Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
     Import-DSCResource -ModuleName @{ModuleName='FileDownloadDSC';ModuleVersion='1.0.10'}
     Import-DSCResource -ModuleName EventStoreDSC
-    Import-DSCResource -ModuleName @{ModuleName="cChoco";ModuleVersion="2.3.1.0"}
+    Import-DSCResource -ModuleName @{ModuleName="cChoco";ModuleVersion="2.4.0.0"}
 
     File BaseDirectory
     {

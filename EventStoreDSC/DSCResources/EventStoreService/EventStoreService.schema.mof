@@ -1,0 +1,9 @@
+[ClassVersion("1.0.0"), FriendlyName("EventStoreService")]
+class EventStoreService : OMI_BaseResource
+{
+    [Key, Description("Specifies Service Name")] string ServiceName;
+
+    [Required, Description("App")] string App;
+
+    [Required, Description("AppArgs")] string AppArgs;
+};

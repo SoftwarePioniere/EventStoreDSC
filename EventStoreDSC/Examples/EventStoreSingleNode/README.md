@@ -11,4 +11,8 @@
 $password = ConvertTo-SecureString "Password" -AsPlainText -Force
 .\Sample2.ps1 -CertificatePassword $password
 
+
+# run sample4, default without ssl, windows service
+.\Sample4.ps1
+
 ```

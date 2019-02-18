@@ -9,7 +9,8 @@ configuration EventStoreNode
 
         [boolean]   $UseSecure = $false,
         [boolean]   $UseFirewall = $false,
-        [boolean]   $UseStartupTask = $true,
+        [boolean]   $UseStartupTask = $false,
+        [boolean]   $UseWindowsService = $false,
         [boolean]   $CheckRunning = $true,
         [boolean]   $IsClusterNode = $false,
 
@@ -32,6 +33,11 @@ configuration EventStoreNode
 
         [string]    $ZipName411Hotfix1= 'EventStore-OSS-Win-v4.1.1-hotfix1',
         [string]    $ArchiveFile411Hotfix1 = $BaseDirectoryName + '\' + $ZipName411Hotfix1 + '.zip',
+        [string]    $ServiceName411Hotfix1 = 'EventStore_411X1_' + $ProjectName,
+
+        [string]    $ZipName500= 'EventStore-OSS-Win-v5.0.0',
+        [string]    $ArchiveFile500 = $BaseDirectoryName + '\' + $ZipName500 + '.zip',
+        [string]    $ServiceName500 = 'EventStore_500_' + $ProjectName,
 
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
@@ -68,16 +74,22 @@ configuration EventStoreNode
         [string]    $AppDirectory411Hotfix1 = $ProjectDirectoryName + '\' + $ZipName411Hotfix1,
         [string]    $AppExe411Hotfix1 = $AppDirectory411Hotfix1 + '\EventStore.ClusterNode.exe',
 
+        [string]    $AppDirectory500 = $ProjectDirectoryName + '\' + $ZipName500,
+        [string]    $AppExe500 = $AppDirectory500 + '\EventStore.ClusterNode.exe',
+
+
         [string]    $ConfigFile =  $ProjectDirectoryName + '\config.yaml',
         [string]    $StarterFile = $ProjectDirectoryName + '\start.cmd',
         [string]    $AdminUrl = 'http://'+  $ExtIp  +  ':' + $ExtHttpPort,
 
-        [string]    $CurrentAppExe = $AppExe411Hotfix1
+        [string]    $CurrentAppExe = $AppExe411Hotfix1,
+        [string]    $CurrentServiceName = $ServiceName411Hotfix1
     )
 
     Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
     Import-DSCResource -ModuleName @{ModuleName='FileDownloadDSC';ModuleVersion='1.0.10'}
     Import-DSCResource -ModuleName EventStoreDSC
+    Import-DSCResource -ModuleName @{ModuleName="cChoco";ModuleVersion="2.3.1.0"}
 
     File BaseDirectory
     {
@@ -94,6 +106,14 @@ configuration EventStoreNode
             Url = $CertificateDownloadUrl
         }
     }
+
+    cChocoInstaller installChoco
+    {
+        InstallDir = "c:\choco"
+    }
+
+
+
     # FileDownload DownloadEventStoreV401
     # {
     #         DependsOn = '[File]BaseDirectory'
@@ -127,6 +147,13 @@ configuration EventStoreNode
             DependsOn = '[File]BaseDirectory'
             FileName = $ArchiveFile411Hotfix1
             Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip'
+    }
+
+    FileDownload DownloadEventStoreV500
+    {
+            DependsOn = '[File]BaseDirectory'
+            FileName = $ArchiveFile500
+            Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.0.zip'
     }
 
     if ($UseFirewall) {
@@ -226,6 +253,14 @@ configuration EventStoreNode
         Ensure      = 'Present'  # You can also set Ensure to 'Absent'
         Path        = $ArchiveFile411Hotfix1
         Destination = $AppDirectory411Hotfix1
+    }
+
+    Archive ( 'ES_' + $ProjectName + '_EventStoreV500')
+    {
+        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV500'
+        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+        Path        = $ArchiveFile500
+        Destination = $AppDirectory500
     }
 
     if ($UseSecure) {
@@ -348,63 +383,83 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
     }
 
 
+    if (!$UseWindowsService) {
 
-    # WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV401Process')
-    # {
-    #     Arguments   = '--config=' + $ConfigFile
-    #     Path        = $AppExe401
-    #     DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-    #     Ensure      = 'Absent'
-    # }
-
-    # WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV401Hotfix4Process')
-    # {
-    #     Arguments   = '--config=' + $ConfigFile
-    #     Path        = $AppExe401Hotfix4
-    #     DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-    #     Ensure      = 'Absent'
-    # }
-
-    # WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV403Process')
-    # {
-    #     Arguments   = '--config=' + $ConfigFile
-    #     Path        = $AppExe403
-    #     DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-    #     Ensure      = 'Absent'
-    # }
-
-    WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV410Process')
-    {
-        Arguments   = '--config=' + $ConfigFile
-        Path        = $AppExe410
-        DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-        Ensure      = 'Absent'
-    }
-
-    WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process')
-    {
-        Arguments   = '--config=' + $ConfigFile
-        Path        = $AppExe411Hotfix1
-        DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-        Ensure      = 'Present'
-    }
-
-    if ($UseStartupTask) {
-        EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
+        WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV410Process')
         {
-            DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
-            TaskName    = 'EventStore Startup - ' + $ProjectName
-            Directory   = $ProjectDirectoryName
+            Arguments   = '--config=' + $ConfigFile
+            Path        = $AppExe410
+            DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
+            Ensure      = 'Absent'
+        }
+
+        WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process')
+        {
+            Arguments   = '--config=' + $ConfigFile
+            Path        = $AppExe411Hotfix1
+            DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
+            Ensure      = 'Present'
+        }
+
+        if ($CheckRunning) {
+            WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning')
+            {
+                DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+                Url         = $AdminUrl
+            }
+        }
+
+        if ($UseStartupTask) {
+            EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
+            {
+                DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+                TaskName    = 'EventStore Startup - ' + $ProjectName
+                Directory   = $ProjectDirectoryName
+            }
         }
     }
 
-    if ($CheckRunning) {
-        WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning')
+    if ($UseWindowsService) {
+
+        cChocoPackageInstaller installnssm
         {
-            DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
-            Url         = $AdminUrl
+            Name = "nssm"
+            DependsOn = "[cChocoInstaller]installChoco"
+            AutoUpgrade = $True
+        }
+
+        EventStoreService('ES_' + $ProjectName + '_EventStoreInstaller') {
+            DependsOn   = '[cChocoPackageInstaller]installnssm'
+            ServiceName =  $CurrentServiceName
+            App = $CurrentAppExe
+            AppArgs = ' --config=' + $ConfigFile
+        }
+
+        Service ('ES_' + $ProjectName + '_Service411Hotfix1')
+        {
+            Name        = $ServiceName411Hotfix1
+            StartupType = 'Automatic'
+            State       = 'Running'
+        }
+
+        # Service ('ES_' + $ProjectName + '_Service500')
+        # {
+        #     Name        = $ServiceName500
+        #     StartupType = 'Automatic'
+        #     State       = 'Running'
+        # }
+
+        if ($CheckRunning) {
+            WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning1')
+            {
+                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service411Hotfix1'
+                Url         = $AdminUrl
+            }
         }
     }
+
+
+
     # EventStoreLogin('ES_' + $ProjectName + '_Login_Admin')
     # {
     #     DependsOn       = '[EventStoreRunning]' + 'ES_' + $ProjectName + '_EventStoreRunning'

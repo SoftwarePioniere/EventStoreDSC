@@ -440,6 +440,7 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
             Name        = $ServiceName411Hotfix1
             StartupType = 'Disabled'
             State       = 'Stopped'
+            Ensure      = 'Absent'
         }
 
         Service ('ES_' + $ProjectName + '_Service500')
@@ -447,6 +448,7 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
             Name        = $ServiceName500
             StartupType = 'Automatic'
             State       = 'Running'
+
         }
 
         # if ($CheckRunning) {

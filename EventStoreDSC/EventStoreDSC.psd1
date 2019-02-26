@@ -13,6 +13,7 @@
     # DscResourcesToExport =  @('EventStoreProject');
     RequiredModules = @(
     @{ModuleName = 'xNetworking'; ModuleVersion = '5.7.0.0'; },
+    @{ModuleName = 'cChoco'; ModuleVersion = '2.4.0.0'; },
     @{ModuleName = 'FileDownloadDSC'; RequiredVersion = '1.0.10'; })
 
     PrivateData = @{

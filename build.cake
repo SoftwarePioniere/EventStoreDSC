@@ -5,7 +5,7 @@
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 var target          = Argument("target", "Default");
-var psGalleryApiKey   = Argument("PS_GALLERY_API_KEY", "");
+var psGalleryApiKey = Argument("PS_GALLERY_API_KEY",  EnvironmentVariable("PS_GALLERY_API_KEY") ?? "");
 
 Task("Default")
   .Does(() =>

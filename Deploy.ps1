@@ -4,27 +4,27 @@ Param(
     [string]$apiKey
 )
 
-#script to deploy with appveyor
 $moduleDir = "$(Get-Location)\xxModules"
 
 if (!(Test-Path -Path $moduleDir)) {
+    Write-Host "Creating Temp Modules Dir $moduleDir"
     New-Item -Path $moduleDir -ItemType Directory
- }
-
-if (!(Test-Path -Path "$moduleDir\xNetworking\5.7.0.0")) {
-    Save-Module -Name xNetworking -RequiredVersion '5.7.0.0' -Path $moduleDir
 }
 
-if (!(Test-Path -Path "$moduleDir\FileDownloadDSC\1.0.10")) {
-    Save-Module -Name FileDownloadDSC -RequiredVersion '1.0.10' -Path $moduleDir
-}
+$mod = Import-PowerShellDataFile ./EventStoreDSC/EventStoreDSC.psd1
 
-if (!(Test-Path -Path "$moduleDir\cChoco\2.4.0.0")) {
-    Save-Module -Name cChoco -RequiredVersion '2.4.0.0' -Path $moduleDir
+foreach ($m in $mod.RequiredModules) {
+    Write-Host "Saving Module" $m.ModuleName $m.ModuleVersion
+    
+    $path ="$moduleDir\$($m.ModuleName)\$($m.ModuleVersion)"
+    Write-Host "Local Path" $path
+    if (!(Test-Path -Path $path)) {
+        Save-Module -Name $m.ModuleName -RequiredVersion $m.ModuleVersion -Path $moduleDir
+    }
 }
 
 $env:PSModulePath = "$env:PSModulePath;$moduleDir";
-Write-Host  $env:PSModulePath
+Write-Host "Changed ModulePath" $env:PSModulePath
 
 Write-Host "Updating Module Manifest... with Version: $version"
 Update-ModuleManifest -Path .\EventStoreDSC\EventStoreDSC.psd1 -ModuleVersion $version

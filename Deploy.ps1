@@ -30,6 +30,6 @@ Write-Host "Updating Module Manifest... with Version: $version"
 Update-ModuleManifest -Path .\EventStoreDSC\EventStoreDSC.psd1 -ModuleVersion $version
 
 if ($apiKey) {
-    Write-Host "Publishing Module... With ApiKey: $apiKey"
-    # Publish-Module -Path .\EventStoreDSC -NuGetApiKey $apiKey
+    Write-Host "Publishing Module... "
+    Publish-Module -Path .\EventStoreDSC -NuGetApiKey $apiKey
 }

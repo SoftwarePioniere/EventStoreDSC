@@ -4,12 +4,16 @@
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
-var target          = Argument("target", "Default");
-var apiKey = Argument("PS_GALLERY_API_KEY",  EnvironmentVariable("PS_GALLERY_API_KEY") ?? "");
+var target      = Argument("target", "Default");
+var apiKey      = Argument("apikey", EnvironmentVariable("PS_GALLERY_API_KEY") ?? "");
 
 Task("Default")
   .Does(() =>
 {
+  GitVersion(new GitVersionSettings {
+    OutputType = BuildServer
+  });
+
   var version = GitVersion();
   Information($"Version: {version.NuGetVersionV2}");
 

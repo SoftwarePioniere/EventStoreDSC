@@ -11,7 +11,7 @@ Task("Default")
   .Does(() =>
 {
   GitVersion(new GitVersionSettings {
-    OutputType = BuildServer
+    OutputType = GitVersionOutput.BuildServer
   });
 
   var version = GitVersion();

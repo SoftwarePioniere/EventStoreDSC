@@ -5,7 +5,7 @@
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 var target          = Argument("target", "Default");
-var psGalleryApiKey = Argument("PS_GALLERY_API_KEY",  EnvironmentVariable("PS_GALLERY_API_KEY") ?? "");
+var apiKey = Argument("PS_GALLERY_API_KEY",  EnvironmentVariable("PS_GALLERY_API_KEY") ?? "");
 
 Task("Default")
   .Does(() =>
@@ -17,8 +17,8 @@ Task("Default")
   {
         args.Append("version", version.AssemblySemFileVer);
 
-        if (!string.IsNullOrEmpty(psGalleryApiKey)) {
-            args.Append("psGalleryApiKey", psGalleryApiKey)
+        if (!string.IsNullOrEmpty(apiKey)) {
+            args.Append("apiKey", apiKey)
             ;
         }
   });

@@ -11,5 +11,4 @@ pool:
 
 steps:
 - powershell: 
-  targetType: 'filePath'
   filePath: './build.ps1'

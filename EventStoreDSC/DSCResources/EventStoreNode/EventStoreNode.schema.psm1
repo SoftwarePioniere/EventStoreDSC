@@ -39,6 +39,10 @@ configuration EventStoreNode
         [string]    $ArchiveFile500 = $BaseDirectoryName + '\' + $ZipName500 + '.zip',
         [string]    $ServiceName500 = 'EventStore_500_' + $ProjectName,
 
+        [string]    $ZipName501 = 'EventStore-OSS-Win-v5.0.1',
+        [string]    $ArchiveFile501 = $BaseDirectoryName + '\' + $ZipName501 + '.zip',
+        [string]    $ServiceName501 = 'EventStore_501_' + $ProjectName,
+
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
 
@@ -77,13 +81,15 @@ configuration EventStoreNode
         [string]    $AppDirectory500 = $ProjectDirectoryName + '\' + $ZipName500,
         [string]    $AppExe500 = $AppDirectory500 + '\EventStore.ClusterNode.exe',
 
+        [string]    $AppDirectory501 = $ProjectDirectoryName + '\' + $ZipName501,
+        [string]    $AppExe501 = $AppDirectory501 + '\EventStore.ClusterNode.exe',
 
         [string]    $ConfigFile =  $ProjectDirectoryName + '\config.yaml',
         [string]    $StarterFile = $ProjectDirectoryName + '\start.cmd',
         [string]    $AdminUrl = 'http://'+  $ExtIp  +  ':' + $ExtHttpPort,
 
-        [string]    $CurrentAppExe = $AppExe500,
-        [string]    $CurrentServiceName = $ServiceName500
+        [string]    $CurrentAppExe = $AppExe501,
+        [string]    $CurrentServiceName = $ServiceName501
     )
 
     Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
@@ -154,6 +160,13 @@ configuration EventStoreNode
             DependsOn = '[File]BaseDirectory'
             FileName = $ArchiveFile500
             Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.0.zip'
+    }
+
+    FileDownload DownloadEventStoreV501
+    {
+            DependsOn = '[File]BaseDirectory'
+            FileName = $ArchiveFile501
+            Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.1.zip'
     }
 
     if ($UseFirewall) {
@@ -261,6 +274,14 @@ configuration EventStoreNode
         Ensure      = 'Present'  # You can also set Ensure to 'Absent'
         Path        = $ArchiveFile500
         Destination = $AppDirectory500
+    }
+
+    Archive ( 'ES_' + $ProjectName + '_EventStoreV501')
+    {
+        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV501'
+        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+        Path        = $ArchiveFile501
+        Destination = $AppDirectory501
     }
 
     if ($UseSecure) {
@@ -383,41 +404,41 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
     }
 
 
-    if (!$UseWindowsService) {
+    # if (!$UseWindowsService) {
 
-        WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV410Process')
-        {
-            Arguments   = '--config=' + $ConfigFile
-            Path        = $AppExe410
-            DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-            Ensure      = 'Absent'
-        }
+    #     WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV410Process')
+    #     {
+    #         Arguments   = '--config=' + $ConfigFile
+    #         Path        = $AppExe410
+    #         DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
+    #         Ensure      = 'Absent'
+    #     }
 
-        WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process')
-        {
-            Arguments   = '--config=' + $ConfigFile
-            Path        = $AppExe411Hotfix1
-            DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
-            Ensure      = 'Present'
-        }
+    #     WindowsProcess ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process')
+    #     {
+    #         Arguments   = '--config=' + $ConfigFile
+    #         Path        = $AppExe411Hotfix1
+    #         DependsOn   = '[File]ES_'+ $ProjectName + '_ConfigFile'
+    #         Ensure      = 'Absent'
+    #     }
 
-        if ($CheckRunning) {
-            WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning')
-            {
-                DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
-                Url         = $AdminUrl
-            }
-        }
+    #     if ($CheckRunning) {
+    #         WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning')
+    #         {
+    #             DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+    #             Url         = $AdminUrl
+    #         }
+    #     }
 
-        if ($UseStartupTask) {
-            EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
-            {
-                DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
-                TaskName    = 'EventStore Startup - ' + $ProjectName
-                Directory   = $ProjectDirectoryName
-            }
-        }
-    }
+    #     if ($UseStartupTask) {
+    #         EventStoreStartupTask('ES_' + $ProjectName + '_EventStoreStartupTask')
+    #         {
+    #             DependsOn   = '[WindowsProcess]'+ 'ES_' + $ProjectName + '_EventStoreV411Hotfix1Process'
+    #             TaskName    = 'EventStore Startup - ' + $ProjectName
+    #             Directory   = $ProjectDirectoryName
+    #         }
+    #     }
+    # }
 
     if ($UseWindowsService) {
 
@@ -446,6 +467,14 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
         Service ('ES_' + $ProjectName + '_Service500')
         {
             Name        = $ServiceName500
+            StartupType = 'Disabled'
+            State       = 'Stopped'
+            Ensure      = 'Absent'
+        }
+
+        Service ('ES_' + $ProjectName + '_Service501')
+        {
+            Name        = $ServiceName500
             StartupType = 'Automatic'
             State       = 'Running'
 
@@ -462,7 +491,7 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
         if ($CheckRunning) {
             WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning1')
             {
-                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service500'
+                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service501'
                 Url         = $AdminUrl
             }
         }

@@ -42,7 +42,7 @@ Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreLogin\EventStoreLogin.sch
 Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreStartupTask
 Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreStartupTask\EventStoreStartupTask.schema.mof
 
-Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreSingleNode
+Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreNode
 Test-xDscSchema .\EventStoreDSC\DSCResources\EventStoreSingleNode\EventStoreStartupTask.schema.psm1
 Test-xDscResource .\EventStoreDSC\DSCResources\EventStoreSingleNode\EventStoreStartupTask.schema.psm1
 

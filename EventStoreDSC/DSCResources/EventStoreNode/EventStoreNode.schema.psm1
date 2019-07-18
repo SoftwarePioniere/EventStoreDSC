@@ -474,7 +474,7 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
 
         Service ('ES_' + $ProjectName + '_Service501')
         {
-            Name        = $ServiceName500
+            Name        = $ServiceName501
             StartupType = 'Automatic'
             State       = 'Running'
 

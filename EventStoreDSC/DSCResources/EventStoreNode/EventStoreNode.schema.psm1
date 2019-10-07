@@ -43,8 +43,13 @@ configuration EventStoreNode
         [string]    $ArchiveFile501 = $BaseDirectoryName + '\' + $ZipName501 + '.zip',
         [string]    $ServiceName501 = 'EventStore_501_' + $ProjectName,
 
+        [string]    $ZipName502 = 'EventStore-OSS-Win-v5.0.2',
+        [string]    $ArchiveFile502 = $BaseDirectoryName + '\' + $ZipName502 + '.zip',
+        [string]    $ServiceName502 = 'EventStore_502_' + $ProjectName,
+
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
+        [string]    $ProjectDataDirectoryName = $ProjectDirectoryName + '\data',
 
         [string]    $ExtIp = '127.0.0.1',
         [string]    $IntIp = '127.0.0.1',
@@ -57,6 +62,8 @@ configuration EventStoreNode
 
         [string]    $ClusterSize = '3',
         [string]    $GossipSeed = '',
+
+        [string]    $CustomConfigFileContent = '',
 
                 # [string]    $OldAdminPassword = 'changeit',
         # [string]    $OldOpsPassword = 'changeit',
@@ -72,11 +79,11 @@ configuration EventStoreNode
         # [string]    $AppDirectory403 = $ProjectDirectoryName + '\' + $ZipName403,
         # [string]    $AppExe403 = $AppDirectory403 + '\EventStore.ClusterNode.exe',
 
-        [string]    $AppDirectory410 = $ProjectDirectoryName + '\' + $ZipName410,
-        [string]    $AppExe410 = $AppDirectory410 + '\EventStore.ClusterNode.exe',
+        # [string]    $AppDirectory410 = $ProjectDirectoryName + '\' + $ZipName410,
+        # [string]    $AppExe410 = $AppDirectory410 + '\EventStore.ClusterNode.exe',
 
-        [string]    $AppDirectory411Hotfix1 = $ProjectDirectoryName + '\' + $ZipName411Hotfix1,
-        [string]    $AppExe411Hotfix1 = $AppDirectory411Hotfix1 + '\EventStore.ClusterNode.exe',
+        # [string]    $AppDirectory411Hotfix1 = $ProjectDirectoryName + '\' + $ZipName411Hotfix1,
+        # [string]    $AppExe411Hotfix1 = $AppDirectory411Hotfix1 + '\EventStore.ClusterNode.exe',
 
         [string]    $AppDirectory500 = $ProjectDirectoryName + '\' + $ZipName500,
         [string]    $AppExe500 = $AppDirectory500 + '\EventStore.ClusterNode.exe',
@@ -84,12 +91,15 @@ configuration EventStoreNode
         [string]    $AppDirectory501 = $ProjectDirectoryName + '\' + $ZipName501,
         [string]    $AppExe501 = $AppDirectory501 + '\EventStore.ClusterNode.exe',
 
+        [string]    $AppDirectory502 = $ProjectDirectoryName + '\' + $ZipName502,
+        [string]    $AppExe502 = $AppDirectory502 + '\EventStore.ClusterNode.exe',
+
         [string]    $ConfigFile =  $ProjectDirectoryName + '\config.yaml',
         [string]    $StarterFile = $ProjectDirectoryName + '\start.cmd',
         [string]    $AdminUrl = 'http://'+  $ExtIp  +  ':' + $ExtHttpPort,
 
-        [string]    $CurrentAppExe = $AppExe501,
-        [string]    $CurrentServiceName = $ServiceName501
+        [string]    $CurrentAppExe = $AppExe502,
+        [string]    $CurrentServiceName = $ServiceName502
     )
 
     Import-DscResource -ModuleName @{ModuleName='xNetworking';ModuleVersion='5.7.0.0'}
@@ -141,32 +151,39 @@ configuration EventStoreNode
     #         Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.0.3.zip'
     # }
 
-    FileDownload DownloadEventStoreV410
-    {
-            DependsOn = '[File]BaseDirectory'
-            FileName = $ArchiveFile410
-            Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.0.zip'
-    }
+    # FileDownload DownloadEventStoreV410
+    # {
+    #         DependsOn = '[File]BaseDirectory'
+    #         FileName = $ArchiveFile410
+    #         Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.0.zip'
+    # }
 
-    FileDownload DownloadEventStoreV411Hotfix1
-    {
-            DependsOn = '[File]BaseDirectory'
-            FileName = $ArchiveFile411Hotfix1
-            Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip'
-    }
+    # FileDownload DownloadEventStoreV411Hotfix1
+    # {
+    #         DependsOn = '[File]BaseDirectory'
+    #         FileName = $ArchiveFile411Hotfix1
+    #         Url = 'https://eventstore.org/downloads/EventStore-OSS-Win-v4.1.1-hotfix1.zip'
+    # }
 
-    FileDownload DownloadEventStoreV500
-    {
-            DependsOn = '[File]BaseDirectory'
-            FileName = $ArchiveFile500
-            Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.0.zip'
-    }
+    # FileDownload DownloadEventStoreV500
+    # {
+    #         DependsOn = '[File]BaseDirectory'
+    #         FileName = $ArchiveFile500
+    #         Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.0.zip'
+    # }
 
     FileDownload DownloadEventStoreV501
     {
             DependsOn = '[File]BaseDirectory'
             FileName = $ArchiveFile501
             Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.1.zip'
+    }
+
+     FileDownload DownloadEventStoreV502
+    {
+            DependsOn = '[File]BaseDirectory'
+            FileName = $ArchiveFile502
+            Url = 'https://eventstore.org/downloads/win/EventStore-OSS-Win-v5.0.2.zip'
     }
 
     if ($UseFirewall) {
@@ -252,29 +269,29 @@ configuration EventStoreNode
     #     Destination = $AppDirectory403
     # }
 
-    Archive ( 'ES_' + $ProjectName + '_EventStoreV410')
-    {
-        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV410'
-        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
-        Path        = $ArchiveFile410
-        Destination = $AppDirectory410
-    }
+    # Archive ( 'ES_' + $ProjectName + '_EventStoreV410')
+    # {
+    #     DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV410'
+    #     Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+    #     Path        = $ArchiveFile410
+    #     Destination = $AppDirectory410
+    # }
 
-    Archive ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1')
-    {
-        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV411Hotfix1'
-        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
-        Path        = $ArchiveFile411Hotfix1
-        Destination = $AppDirectory411Hotfix1
-    }
+    # Archive ( 'ES_' + $ProjectName + '_EventStoreV411Hotfix1')
+    # {
+    #     DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV411Hotfix1'
+    #     Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+    #     Path        = $ArchiveFile411Hotfix1
+    #     Destination = $AppDirectory411Hotfix1
+    # }
 
-    Archive ( 'ES_' + $ProjectName + '_EventStoreV500')
-    {
-        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV500'
-        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
-        Path        = $ArchiveFile500
-        Destination = $AppDirectory500
-    }
+    # Archive ( 'ES_' + $ProjectName + '_EventStoreV500')
+    # {
+    #     DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV500'
+    #     Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+    #     Path        = $ArchiveFile500
+    #     Destination = $AppDirectory500
+    # }
 
     Archive ( 'ES_' + $ProjectName + '_EventStoreV501')
     {
@@ -282,6 +299,14 @@ configuration EventStoreNode
         Ensure      = 'Present'  # You can also set Ensure to 'Absent'
         Path        = $ArchiveFile501
         Destination = $AppDirectory501
+    }
+
+    Archive ( 'ES_' + $ProjectName + '_EventStoreV502')
+    {
+        DependsOn   = ('[File]ES_' + $ProjectName + '_Directory'), '[FileDownload]DownloadEventStoreV502'
+        Ensure      = 'Present'  # You can also set Ensure to 'Absent'
+        Path        = $ArchiveFile502
+        Destination = $AppDirectory502
     }
 
     if ($UseSecure) {
@@ -296,7 +321,7 @@ configuration EventStoreNode
                 Contents        =
 'RunProjections: all
 Log: ' +  $ProjectDirectoryName + '\log
-Db: ' + $ProjectDirectoryName + '\data
+Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 DiscoverViaDns: false
@@ -310,7 +335,8 @@ IntTcpPort: ' + $IntTcpPort + '
 ExtTcpPort: ' + $ExtTcpPort + '
 ExtSecureTcpPort: ' + $ExtSecureTcpPort + '
 CertificateFile: ' + $CertificateFileName + '
-CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('xxx', $CertificatePassword)).GetNetworkCredential().Password
+CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('xxx', $CertificatePassword)).GetNetworkCredential().Password + 
+$CustomConfigFileContent
 # IntSecureTcpPort: ' + $IntSecureTcpPort + '
             }
 
@@ -325,7 +351,7 @@ CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('
                 Contents        =
 'RunProjections: all
 Log: ' +  $ProjectDirectoryName + '\log
-Db: ' + $ProjectDirectoryName + '\data
+Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 ExtIp: ' + $ExtIp + '
@@ -336,7 +362,8 @@ IntTcpPort: ' + $IntTcpPort + '
 ExtTcpPort: ' + $ExtTcpPort + '
 ExtSecureTcpPort: ' + $ExtSecureTcpPort + '
 CertificateFile: ' + $CertificateFileName + '
-CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('xxx', $CertificatePassword)).GetNetworkCredential().Password
+CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('xxx', $CertificatePassword)).GetNetworkCredential().Password + 
+$CustomConfigFileContent
 # IntSecureTcpPort: ' + $IntSecureTcpPort + '
             }
         }
@@ -352,7 +379,7 @@ CertificatePassword: ' + (New-Object System.Management.Automation.PSCredential('
                 Contents        =
 'RunProjections: all
 Log: ' +  $ProjectDirectoryName + '\log
-Db: ' + $ProjectDirectoryName + '\data
+Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 DiscoverViaDns: false
@@ -363,7 +390,8 @@ IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '
-ExtTcpPort: ' + $ExtTcpPort
+ExtTcpPort: ' + $ExtTcpPort +
+$CustomConfigFileContent
             }
         }
         else{
@@ -377,7 +405,7 @@ ExtTcpPort: ' + $ExtTcpPort
                 Contents        =
 'RunProjections: all
 Log: ' +  $ProjectDirectoryName + '\log
-Db: ' + $ProjectDirectoryName + '\data
+Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
 ExtIp: ' + $ExtIp + '
@@ -385,7 +413,8 @@ IntIp: ' + $IntIp + '
 IntHttpPort: ' + $IntHttpPort + '
 ExtHttpPort: ' + $ExtHttpPort + '
 IntTcpPort: ' + $IntTcpPort + '
-ExtTcpPort: ' + $ExtTcpPort
+ExtTcpPort: ' + $ExtTcpPort +
+$CustomConfigFileContent
             }
         }
     }
@@ -456,13 +485,13 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
             AppArgs = ' --config=' + $ConfigFile
         }
 
-        Service ('ES_' + $ProjectName + '_Service411Hotfix1')
-        {
-            Name        = $ServiceName411Hotfix1
-            StartupType = 'Disabled'
-            State       = 'Stopped'
-            Ensure      = 'Absent'
-        }
+        # Service ('ES_' + $ProjectName + '_Service411Hotfix1')
+        # {
+        #     Name        = $ServiceName411Hotfix1
+        #     StartupType = 'Disabled'
+        #     State       = 'Stopped'
+        #     Ensure      = 'Absent'
+        # }
 
         Service ('ES_' + $ProjectName + '_Service500')
         {
@@ -474,7 +503,15 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
 
         Service ('ES_' + $ProjectName + '_Service501')
         {
-            Name        = $ServiceName501
+            Name        = $ServiceName500
+            StartupType = 'Disabled'
+            State       = 'Stopped'
+            Ensure      = 'Absent'
+        }
+
+        Service ('ES_' + $ProjectName + '_Service502')
+        {
+            Name        = $ServiceName502
             StartupType = 'Automatic'
             State       = 'Running'
 
@@ -491,7 +528,7 @@ START ' + $CurrentAppExe + ' --config=' + $ConfigFile
         if ($CheckRunning) {
             WaitForEventStore('ES_' + $ProjectName + '_EventStoreRunning1')
             {
-                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service501'
+                DependsOn   = '[Service]'+ 'ES_' + $ProjectName + '_Service502'
                 Url         = $AdminUrl
             }
         }

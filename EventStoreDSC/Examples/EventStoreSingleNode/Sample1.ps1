@@ -18,7 +18,7 @@ Configuration Sample1
             ExtHttpPort = "2813"
             IntTcpPort = "1812"
             ExtTcpPort = "1813"
-            ExtSecureTcpPort = "3813"
+            ExtSecureTcpPort = "3813"            
 
       }
     }

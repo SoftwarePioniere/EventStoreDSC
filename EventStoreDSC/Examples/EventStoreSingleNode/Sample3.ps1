@@ -14,6 +14,9 @@ Configuration Sample3
             ExtHttpPort = "2713"
             IntTcpPort = "1712"
             ExtTcpPort = "1713"
+            ProjectDataDirectoryName = "c:\temp\data3"
+            CustomConfigFileContent = '
+CommitTimeoutMs: 10000'
       }
     }
 }

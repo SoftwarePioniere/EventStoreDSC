@@ -50,6 +50,7 @@ configuration EventStoreNode
         [string]    $ProjectName = 'es1',
         [string]    $ProjectDirectoryName = $BaseDirectoryName + '\' + $ProjectName,
         [string]    $ProjectDataDirectoryName = $ProjectDirectoryName + '\data',
+        [string]    $ProjectLogDirectoryName = $ProjectDirectoryName + '\log',
 
         [string]    $ExtIp = '127.0.0.1',
         [string]    $IntIp = '127.0.0.1',
@@ -320,7 +321,7 @@ configuration EventStoreNode
                 Type            = 'File'
                 Contents        =
 'RunProjections: all
-Log: ' +  $ProjectDirectoryName + '\log
+Log: ' + $ProjectLogDirectoryName + '
 Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
@@ -350,7 +351,7 @@ $CustomConfigFileContent
                 Type            = 'File'
                 Contents        =
 'RunProjections: all
-Log: ' +  $ProjectDirectoryName + '\log
+Log: ' + $ProjectLogDirectoryName + '
 Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
@@ -378,7 +379,7 @@ $CustomConfigFileContent
                 Type            = 'File'
                 Contents        =
 'RunProjections: all
-Log: ' +  $ProjectDirectoryName + '\log
+Log: ' + $ProjectLogDirectoryName + '
 Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
@@ -404,7 +405,7 @@ $CustomConfigFileContent
                 Type            = 'File'
                 Contents        =
 'RunProjections: all
-Log: ' +  $ProjectDirectoryName + '\log
+Log: ' + $ProjectLogDirectoryName + '
 Db: ' + $ProjectDataDirectoryName + '
 StatsPeriodSec: 120
 DisableHTTPCaching: true
